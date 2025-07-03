@@ -1,0 +1,13 @@
+name: SSX Tricky
+platform: ps2
+versions:
+  - name: US
+    fullname: NTSC-U release (SLUS-20326)
+    paths:
+      baserom: 'disc/SLUS_203.26'
+      build: 'build/SLUS_203.26'
+      asm: 'asm'
+      nonmatchings: 'asm/nonmatchings'
+      map: 'out/SLUS_203.26.map'
+      elf: 'out/SLUS_203.36'
+tools:

@@ -1,0 +1,191 @@
+name: SSX Tricky (2001)
+sha1: 45e9fd5fa4c0b30ffbd4155a9e256d5eabc65d23
+
+options:
+  basename: SLUS_203.26
+  target_path: disc/SLUS_203.26
+  elf_path: SLUS_203.26
+  base_path: ../../
+  platform: ps2
+  compiler: EEGCC
+  endianness: little
+
+  asm_path: asm
+  src_path: src/
+  build_path: obj
+
+  # Put 'hasm' splits in src/
+  hasm_in_src_path: True
+
+  use_legacy_include_asm: False
+
+  disasm_unknown: True
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+  find_file_boundaries: True
+  pair_rodata_to_text: True
+  auto_decompile_empty_functions: True
+  do_c_func_detection: True
+  suggestion_rodata_section_start: True
+  migrate_rodata_to_functions: True
+
+  named_regs_for_c_funcs: False
+
+  use_gp_rel_macro_nonmatching: False
+
+  create_undefined_funcs_auto: True
+  undefined_funcs_auto_path: config/undefined_funcs_auto.txt
+  create_undefined_syms_auto: True
+  undefined_syms_auto_path: config/undefined_syms_auto.txt
+
+  symbol_addrs_path: [ 
+    config/symbol_addrs.txt, 
+    config/sdk_symbol_addrs.txt,
+    config/eac_symbol_addrs.txt
+  ]
+
+  extensions_path: tools/splat_ext
+
+  section_order: [
+    ".text", 
+    ".vutext", 
+    ".reginfo", 
+    ".data", 
+    ".vudata", 
+    ".rodata", 
+    ".lit4", 
+    ".sdata", 
+    ".sbss", 
+    ".bss", 
+    ".vubss"
+  ]
+
+  auto_link_sections: [
+    ".text", 
+    ".data", 
+    ".rodata", 
+    ".lit4", 
+    ".sdata", 
+    ".sbss", 
+    ".bss",
+  ]
+
+  gp_value: 0x002c8ff0
+
+
+segments:
+  - name: elf_header
+    type: databin
+    start: 0x0
+
+  - name: main
+    type: code
+    start: 0x1000
+    vram: 0x100000
+    bss_size: 0x50618 # I think?
+    align: 4
+    subalign: null
+    subsegments:
+      # -- .text
+
+      - { type: asm, start: 0x001000, vram: 0x100000, name: lib/sdk/sce/crt0 }
+
+      - { type: asm, start: 0x141e80, name: bx/core/hashname }
+      
+      - { type: asm, start: 0x141ef8, name: bx/unk_rest }
+
+      # -- end of text
+
+      # --- .vutext
+      - { type: databin, start: 0x210960, vram: 0x30f960, name: vutext }
+
+
+      # --- .data
+      - { type: data, start: 0x21e300, vram: 0x31d300, name: data }
+
+      # --- .vudata
+      - { type: databin, vram: 0x35f6d0, start: 0x2606d0, name: vudata }
+
+      # --- .rodata
+      - { type: rodata, start: 0x260700, vram: 0x35f700, name: rodata }
+
+      - { type: gcc_except_table, vram: 0x3bb800, start: 0x2bc800, name: gcc_except_table }
+
+      # -- SDATA
+      - { type: sdata, vram: 0x3bb900, start: 0x2bc900, name: sdata }
+
+
+      # -- SBSS (TODO!!! SPLIT!!!)
+      - { type: sbss, vram: 0x3bb900, start: 0x2bcb00, name: sbss }
+
+
+      # -- BSS (TODO!! SPLIT!!)
+      - { type: bss, vram: 0x3bbd00, start: 0x2bcb5c, name: bss }
+
+      # -- VUBSS
+      - { type: bss, vram: 0x40c174, start: 0x2bcb5c, name: vubss }
+
+  - { type: databin, start: 0x2bcb5c, name: reginfo } # .reginfo section
+  - { type: databin, start: 0x2c9ea6, name: shstrtab }
+  - [0x2cae70]
+
+
+# Section Headers:
+#   [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+#   [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+#   [ 1] .text             PROGBITS        00100000 001000 20f960 00  AX  0   0 64
+#   [ 2] .vutext           PROGBITS        0030f960 210960 00d940 00  AX  0   0 16
+#   [ 3] .reginfo          MIPS_REGINFO    0031d2a0 2bcb5c 000018 01      0   0  4
+#   [ 4] .data             PROGBITS        0031d300 21e300 0423d0 00  WA  0   0 128
+#   [ 5] .vudata           PROGBITS        0035f6d0 2606d0 000000 00  WA  0   0  1
+#   [ 6] .rodata           PROGBITS        0035f700 260700 05c090 00   A  0   0 16
+#   [ 7] .gcc_except_table PROGBITS        003bb800 2bc800 0000d8 00  WA  0   0  4
+#   [ 8] .sdata            PROGBITS        003bb900 2bc900 0001c9 00 WAp  0   0  8
+#   [ 9] .sbss             NOBITS          003bbb00 2bcb00 0001a4 00 WAp  0   0  8
+#   [10] .bss              NOBITS          003bbd00 2bcb5c 050474 00  WA  0   0 64
+#   [11] .vubss            NOBITS          0040c174 2bcb5c 000000 00  WA  0   0  1
+#   [12] .DVP.ovlytab      LOPROC+0xffff42 0040c174 2bcb74 0001f8 0c   W 13   0  4
+#   [13] .DVP.ovlystrtab   STRTAB          0040c174 2bcd6c 00065a 00   W  0   0  1
+#   [14] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bd3c6 000410 00  WX  0   0  1
+#   [15] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bd7d6 000218 00  WX  0   0  1
+#   [16] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bd9ee 0005d0 00  WX  0   0  1
+#   [17] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bdfbe 000368 00  WX  0   0  1
+#   [18] .DVP.overlay[...] LOPROC+0xffff42 00000000 2be326 000290 00  WX  0   0  1
+#   [19] .DVP.overlay[...] LOPROC+0xffff42 00000000 2be5b6 0003d8 00  WX  0   0  1
+#   [20] .DVP.overlay[...] LOPROC+0xffff42 00000000 2be98e 000170 00  WX  0   0  1
+#   [21] .DVP.overlay[...] LOPROC+0xffff42 00000000 2beafe 000410 00  WX  0   0  1
+#   [22] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bef0e 000218 00  WX  0   0  1
+#   [23] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bf126 000660 00  WX  0   0  1
+#   [24] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bf786 000408 00  WX  0   0  1
+#   [25] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bfb8e 000290 00  WX  0   0  1
+#   [26] .DVP.overlay[...] LOPROC+0xffff42 00000000 2bfe1e 000520 00  WX  0   0  1
+#   [27] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c033e 000168 00  WX  0   0  1
+#   [28] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c04a6 000628 00  WX  0   0  1
+#   [29] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c0ace 0006f8 00  WX  0   0  1
+#   [30] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c11c6 0004a8 00  WX  0   0  1
+#   [31] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c166e 0007b0 00  WX  0   0  1
+#   [32] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c1e1e 000168 00  WX  0   0  1
+#   [33] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c1f86 000758 00  WX  0   0  1
+#   [34] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c26de 000748 00  WX  0   0  1
+#   [35] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c2e26 000380 00  WX  0   0  1
+#   [36] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c31a6 000220 00  WX  0   0  1
+#   [37] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c33c6 000608 00  WX  0   0  1
+#   [38] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c39ce 000800 00  WX  0   0  1
+#   [39] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c41ce 0004e0 00  WX  0   0  1
+#   [40] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c46ae 000800 00  WX  0   0  1
+#   [41] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c4eae 0001a8 00  WX  0   0  1
+#   [42] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c5056 0007b0 00  WX  0   0  1
+#   [43] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c5806 000168 00  WX  0   0  1
+#   [44] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c596e 000800 00  WX  0   0  1
+#   [45] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c616e 000800 00  WX  0   0  1
+#   [46] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c696e 000800 00  WX  0   0  1
+#   [47] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c716e 000568 00  WX  0   0  1
+#   [48] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c76d6 0005e0 00  WX  0   0  1
+#   [49] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c7cb6 000800 00  WX  0   0  1
+#   [50] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c84b6 0000d8 00  WX  0   0  1
+#   [51] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c858e 000800 00  WX  0   0  1
+#   [52] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c8d8e 0002d8 00  WX  0   0  1
+#   [53] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c9066 0004c0 00  WX  0   0  1
+#   [54] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c9526 0002c8 00  WX  0   0  1
+#   [55] .DVP.overlay[...] LOPROC+0xffff42 00000000 2c97ee 0006b8 00  WX  0   0  1
+#   [56] .shstrtab         STRTAB          00000000 2c9ea6 0006e1 00      0   0  1
